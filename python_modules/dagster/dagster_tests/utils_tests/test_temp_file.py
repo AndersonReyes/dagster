@@ -1,9 +1,14 @@
-import resource
+import os
+
+import pytest
 
 from dagster.utils.temp_file import get_temp_file_name, get_temp_file_names
 
 
+@pytest.mark.skipif(os.name == 'nt', reason='resource not available on windows')
 def test_get_temp_file_name_leak_file_descriptors():
+    import resource
+
     resource.setrlimit(resource.RLIMIT_NOFILE, (100, 100))
     for _ in range(100):
         with get_temp_file_name() as _:
